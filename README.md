@@ -110,3 +110,7 @@ The UserID is in plain text format.  It can be found in the the Slack full profi
 
 Because BOT_ADMINS is defined as plain text User IDs, they can not be used to send notifications.  The mention format
 `<@Uxxxxx>` must be used in the BOT_ADMINS_NOTIFICATIONS configuration setting for errbot to initiate message to bot administrators.
+
+## Purpose of the Fork
+
+This has been forked from the original, to add support for [interactive](INTERACTIVE.md) messaging. Everything else has been left as per the original master branch as of January 1, 2023.

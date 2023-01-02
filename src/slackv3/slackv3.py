@@ -358,6 +358,9 @@ class SlackBackend(ErrBot):
     def _generic_wrapper(self, event_data):
         """Calls the event handler based on the event type"""
         log.debug("Received event: {}".format(str(event_data)))
+        if event_data['type'] == "block_actions" or \
+           event_data['type'] == "interactive_message":
+            return self._interactive_message_event_handler(event_data)
         try:
             event = event_data["event"]
             event_type = event["type"]
@@ -400,6 +403,31 @@ class SlackBackend(ErrBot):
                 # Stop calling hello handler for future events.
                 sm_client.message_listeners.remove(self._sm_handle_hello)
                 log.info("Unregistered 'hello' handler from socket-mode client")
+    
+    def _interactive_message_event_handler(self, event):
+        """
+        Event handler for the 'interactive' event, used in attachments / buttons.
+        """
+        log.debug(f"event: {event}")
+        msg = Message(
+            frm=SlackPerson(self.slack_web, event['user']['id'], event['channel']['id']),
+            to=self.bot_identifier,
+            extras={
+                'actions': event["actions"],
+                'url': event['response_url'],
+                'trigger_id': event.get('trigger_id', None),
+                'callback_id': event.get('callback_id', None),
+                'ts': event.get('message_ts', None),
+                'slack_event': event
+            }
+        )
+
+        flow, _ = self.flow_executor.check_inflight_flow_triggered(msg.extras['callback_id'], msg.frm)
+        if flow:
+            log.debug("Reattach context from flow %s to the message", flow._root.name)
+            msg.ctx = flow.ctx
+
+        self.callback_message(msg)
 
     def _rtm_handle_hello(self, client: RTMClient, event: dict):
         """Event handler for the 'hello' event"""
