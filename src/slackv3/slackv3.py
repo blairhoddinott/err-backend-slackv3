@@ -419,7 +419,7 @@ class SlackBackend(ErrBot):
                 'callback_id': event.get('callback_id', None),
                 'ts': event.get('message_ts', None),
                 'channel': event['channel']['id'],
-                'user': event['user']['id'],
+                'user': event['user']['name'],
                 'slack_event': event
             }
         )
