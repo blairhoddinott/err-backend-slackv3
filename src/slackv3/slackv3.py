@@ -410,6 +410,8 @@ class SlackBackend(ErrBot):
         """
         log.debug(f"\n\n\nevent: {event}\n\n\n")
         if event['type'] == 'block_actions':
+            if 'value' not in event['actions'][0]:
+                return None
             msg = Message(
                 frm=SlackPerson(self.slack_web, event['user']['id'], event['channel']['id']),
                 to=self.bot_identifier,
