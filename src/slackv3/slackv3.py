@@ -441,10 +441,10 @@ class SlackBackend(ErrBot):
                 }
             )
 
-        flow, _ = self.flow_executor.check_inflight_flow_triggered(msg.extras['callback_id'], msg.frm)
-        if flow:
-            log.debug("Reattach context from flow %s to the message", flow._root.name)
-            msg.ctx = flow.ctx
+            flow, _ = self.flow_executor.check_inflight_flow_triggered(msg.extras['callback_id'], msg.frm)
+            if flow:
+                log.debug("Reattach context from flow %s to the message", flow._root.name)
+                msg.ctx = flow.ctx
 
         self.callback_message(msg)
 
