@@ -408,21 +408,38 @@ class SlackBackend(ErrBot):
         """
         Event handler for the 'interactive' event, used in attachments / buttons.
         """
-        log.debug(f"event: {event}")
-        msg = Message(
-            frm=SlackPerson(self.slack_web, event['user']['id'], event['channel']['id']),
-            to=self.bot_identifier,
-            extras={
-                'actions': event["actions"],
-                'url': event['response_url'],
-                'trigger_id': event.get('trigger_id', None),
-                'callback_id': event.get('callback_id', None),
-                'ts': event.get('message_ts', None),
-                'channel': event['channel']['id'],
-                'user': event['user']['name'],
-                'slack_event': event
-            }
-        )
+        log.debug(f"\n\n\nevent: {event}\n\n\n")
+        if event['type'] == 'block_actions':
+            msg = Message(
+                frm=SlackPerson(self.slack_web, event['user']['id'], event['channel']['id']),
+                to=self.bot_identifier,
+                extras={
+                    'actions': event['actions'],
+                    'action_id': event['actions'][0]['value'],
+                    'url': event['response_url'],
+                    'trigger_id': event.get('trigger_id', None),
+                    'ts': event['message']['ts'],
+                    'channel': event['channel']['id'],
+                    'user': event['user']['name'],
+                    'original_blocks': event['message']['blocks'],
+                    'slack_event': event
+                }
+            )
+        elif event['type'] == 'interactive_message':
+            msg = Message(
+                frm=SlackPerson(self.slack_web, event['user']['id'], event['channel']['id']),
+                to=self.bot_identifier,
+                extras={
+                    'actions': event["actions"],
+                    'url': event['response_url'],
+                    'trigger_id': event.get('trigger_id', None),
+                    'callback_id': event.get('callback_id', None),
+                    'ts': event.get('message_ts', None),
+                    'channel': event['channel']['id'],
+                    'user': event['user']['name'],
+                    'slack_event': event
+                }
+            )
 
         flow, _ = self.flow_executor.check_inflight_flow_triggered(msg.extras['callback_id'], msg.frm)
         if flow:
