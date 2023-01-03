@@ -424,6 +424,7 @@ class SlackBackend(ErrBot):
                     'channel': event['channel']['id'],
                     'user': event['user']['name'],
                     'original_blocks': event['message']['blocks'],
+                    'state': event['state'],
                     'slack_event': event
                 }
             )
